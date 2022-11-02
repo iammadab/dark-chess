@@ -31,7 +31,7 @@ export default class PSI {
     return this.encryptElements(other_encrypted_set);
   }
 
-  // given g^a^b, compute g^b^a if g is the same for both sets, then the shared value
+  // given g^a^b and g^b, compute g^b^a if g is the same for both sets, then the shared value
   // will be the same.
   // returns the index associated with the intersecting shared values.
   processIntersectionGetIndex(
