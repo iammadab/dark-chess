@@ -1,21 +1,20 @@
-import { Field, Poseidon } from 'snarkyjs';
+import { Field } from 'snarkyjs';
+import { exp } from './util';
 
 export default class PSI {
-  private_key: Field;
+  private private_key: Field;
 
   constructor() {
     this.private_key = Field.random();
   }
 
-  static encrypt_field_elements(elems: Field[]): Field[] {
-    return elems.map((element) => {
-      let hashed_element = Poseidon.hash([element]);
-      return hashed_element;
-    });
+  getPrivateKey(): Field {
+    return this.private_key;
   }
 
-  // Need a method that takes a field array and generates
-  static add(a: Field, b: Field): Field {
-    return a.add(b);
+  encryptElements(elements: Field[]): Field[] {
+    return elements.map((element) => {
+      return exp(element, this.private_key.toBigInt());
+    });
   }
 }

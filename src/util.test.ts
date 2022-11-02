@@ -25,6 +25,11 @@ describe('util.js', () => {
         new Field(1073741824)
       );
 
+      // 8^11 = 8589934592
+      expect(exp(new Field(8), new Field(11).toBigInt())).toEqual(
+        new Field(8589934592)
+      );
+
       // TODO: Figure out the max field element and write a test to show proper wrap around logic
     });
   });
