@@ -6,7 +6,7 @@ describe('psi.js', () => {
     await isReady;
   });
 
-  it('blah', () => {
+  it('psi protocol: should find correct intersection', () => {
     let set_a = [new Field(5), new Field(6), new Field(4)];
     let set_b = [new Field(4), new Field(5), new Field(7)];
 
@@ -27,11 +27,16 @@ describe('psi.js', () => {
       encrypted_b
     );
 
-    console.log(index_values);
-    print(actual_values);
+    expect(index_values.length).toBe(2);
+    expect(index_values[0]).toBe(2); // 4 will be in the intersection first
+    expect(index_values[1]).toBe(0); // 5 will be the second element
+
+    expect(actual_values.length).toBe(2);
+    expect(actual_values[0].toString()).toBe(new Field(4).toString());
+    expect(actual_values[1].toString()).toBe(new Field(5).toString());
   });
 });
 
-function print(a: Field[]) {
-  a.map((b) => console.log(b.toString()));
-}
+// function print(a: Field[]) {
+//   a.map((b) => console.log(b.toString()));
+// }

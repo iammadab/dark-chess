@@ -1,5 +1,6 @@
 import { Field } from 'snarkyjs';
 
+// Fast exponentiation in modular space
 export function exp(value: Field, power: bigint): Field {
   if (power == BigInt(0)) {
     return Field.one;
