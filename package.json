@@ -45,8 +45,5 @@
   },
   "peerDependencies": {
     "snarkyjs": "^0.7.1"
-  },
-  "dependencies": {
-    "nodemon": "^2.0.20"
   }
 }
