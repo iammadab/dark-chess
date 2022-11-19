@@ -38,8 +38,6 @@ describe('DarkChessContract', () => {
 
     appInstance = new DarkChessContract(zkAppAddress);
 
-    await DarkChessContract.compile();
-
     await deploy(
       appInstance,
       zkAppPrivateKey,
@@ -47,6 +45,7 @@ describe('DarkChessContract', () => {
       playerOnePK,
       playerTwoPK
     );
+    await DarkChessContract.compile();
   });
 
   it('initializes state correctly', () => {
