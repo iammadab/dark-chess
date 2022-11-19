@@ -19,7 +19,7 @@ describe('DarkChessContract', () => {
   let playerOnePK: PublicKey;
   let playerTwoPK: PublicKey;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     await isReady;
 
     const Local = Mina.LocalBlockchain({
@@ -33,14 +33,16 @@ describe('DarkChessContract', () => {
     playerOnePK = playerOneSK.toPublicKey();
     playerTwoPK = playerTwoSK.toPublicKey();
 
+    console.log('Compiling circuit...');
+    await DarkChessContract.compile();
+    console.log('Circuit compilation complete');
+  });
+
+  beforeEach(async () => {
     const zkAppPrivateKey = PrivateKey.random();
     const zkAppAddress = zkAppPrivateKey.toPublicKey();
 
     appInstance = new DarkChessContract(zkAppAddress);
-
-    console.log('Starting compilation');
-    await DarkChessContract.compile();
-    console.log('Finished compilation');
 
     await deploy(
       appInstance,
@@ -129,17 +131,21 @@ describe('DarkChessContract', () => {
     );
 
     // Player 2 should be able to make a move now
-    const playerTwoSig = Signature.create(playerTwoSK, []);
-    const txn2 = await Mina.transaction(deployerAccount, () => {
-      appInstance.makeMove(playerTwoSig, playerTwoPK, playerOnePK);
-    });
-    await txn2.prove();
-    await txn2.send();
+    // const playerTwoSig = Signature.create(playerTwoSK, []);
+    // const txn2 = await Mina.transaction(deployerAccount, () => {
+    //   appInstance.makeMove(playerTwoSig, playerTwoPK, playerOnePK);
+    // });
+    // await txn2.prove();
+    // await txn2.send();
 
-    // player turn should change after a move
-    expect(appInstance.playerTurn.get().toString()).toBe(
-      new Field(1).toString()
-    );
+    // // player turn should change after a move
+    // expect(appInstance.playerTurn.get().toString()).toBe(
+    //   new Field(1).toString()
+    // );
+  });
+
+  it('blah', async () => {
+    console.log(appInstance.playerTurn.get().toString());
   });
 });
 
