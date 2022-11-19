@@ -36,7 +36,3 @@ describe('psi.js', () => {
     expect(actual_values[1].toString()).toBe(new Field(5).toString());
   });
 });
-
-// function print(a: Field[]) {
-//   a.map((b) => console.log(b.toString()));
-// }
