@@ -45,7 +45,6 @@ describe('DarkChessContract', () => {
       playerOnePK,
       playerTwoPK
     );
-    await DarkChessContract.compile();
   });
 
   it('initializes state correctly', () => {
@@ -102,6 +101,8 @@ describe('DarkChessContract', () => {
   });
 
   it('allows only player with current turn to make a move', async () => {
+    await DarkChessContract.compile();
+
     // Player 2 should not be able to make a move
     try {
       const playerTwoSig = Signature.create(playerTwoSK, []);
