@@ -12,4 +12,5 @@ module.exports = {
   },
   plugins: ['@typescript-eslint', 'snarkyjs'],
   rules: {},
+  ignorePatterns: ['*.html'],
 };
