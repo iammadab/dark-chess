@@ -23,7 +23,7 @@ describe('DarkChessContract', () => {
     await isReady;
 
     const Local = Mina.LocalBlockchain({
-      proofsEnabled: true,
+      proofsEnabled: false,
     });
     Mina.setActiveInstance(Local);
     deployerAccount = Local.testAccounts[0].privateKey;
@@ -38,7 +38,9 @@ describe('DarkChessContract', () => {
 
     appInstance = new DarkChessContract(zkAppAddress);
 
+    console.log('Starting compilation');
     await DarkChessContract.compile();
+    console.log('Finished compilation');
 
     await deploy(
       appInstance,
@@ -118,13 +120,25 @@ describe('DarkChessContract', () => {
     const txn1 = await Mina.transaction(deployerAccount, () => {
       appInstance.makeMove(playerOneSig, playerOnePK, playerTwoPK);
     });
-    console.log(txn1.toPretty());
     await txn1.prove();
     await txn1.send();
 
     // player turn should change after a move
     expect(appInstance.playerTurn.get().toString()).toBe(
       new Field(0).toString()
+    );
+
+    // Player 2 should be able to make a move now
+    const playerTwoSig = Signature.create(playerTwoSK, []);
+    const txn2 = await Mina.transaction(deployerAccount, () => {
+      appInstance.makeMove(playerTwoSig, playerTwoPK, playerOnePK);
+    });
+    await txn2.prove();
+    await txn2.send();
+
+    // player turn should change after a move
+    expect(appInstance.playerTurn.get().toString()).toBe(
+      new Field(1).toString()
     );
   });
 });
