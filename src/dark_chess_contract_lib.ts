@@ -5,6 +5,7 @@ import {
   Poseidon,
   PrivateKey,
   PublicKey,
+  Field,
 } from 'snarkyjs';
 import { DarkChessContract } from './DarkChessContract';
 
@@ -26,4 +27,27 @@ async function deploy(
   await deployTxn.send();
 }
 
-export { deploy };
+function getOrientation(
+  playerOrientationHash: Field,
+  pubKey: PublicKey,
+  otherPlayerPubKey: PublicKey
+): Bool {
+  let whiteOrientation = Poseidon.hash(
+    pubKey.toFields().concat(otherPlayerPubKey.toFields())
+  );
+  if (whiteOrientation.toString() == playerOrientationHash.toString()) {
+    return Bool(true);
+  }
+
+  let blackOrientation = Poseidon.hash(
+    otherPlayerPubKey.toFields().concat(pubKey.toFields())
+  );
+  if (blackOrientation.toString() == playerOrientationHash.toString()) {
+    return Bool(false);
+  }
+
+  // invalid inputs
+  throw Error('player orientation hash did not match provided inputs');
+}
+
+export { deploy, getOrientation };

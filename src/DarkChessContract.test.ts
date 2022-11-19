@@ -6,8 +6,9 @@ import {
   PublicKey,
   Field,
   Poseidon,
+  Bool,
 } from 'snarkyjs';
-import { deploy } from './dark_chess_contract_lib';
+import { deploy, getOrientation } from './dark_chess_contract_lib';
 
 describe('DarkChessContract', () => {
   let appInstance: DarkChessContract;
@@ -57,6 +58,38 @@ describe('DarkChessContract', () => {
     expect(playerOrientationHash.toString()).not.toBe(
       wrongExpectedPlayerOrientationHash.toString()
     );
+  });
+
+  it('allows players get their correct orientation', () => {
+    const playerOrientationHash = appInstance.playerOrientationHash.get();
+
+    // check that player one is white
+    const playerOneOrientation = getOrientation(
+      playerOrientationHash,
+      playerOnePK,
+      playerTwoPK
+    );
+    expect(playerOneOrientation).toEqual(Bool(true));
+
+    // check that player two is black
+    const playerTwoOrientation = getOrientation(
+      playerOrientationHash,
+      playerTwoPK,
+      playerOnePK
+    );
+    expect(playerTwoOrientation).toEqual(Bool(false));
+
+    // throws an error for wrong inputs
+    try {
+      getOrientation(
+        playerOrientationHash,
+        playerOnePK,
+        PrivateKey.random().toPublicKey()
+      );
+      expect(true).toBe(false);
+    } catch {
+      // do nothing, we are good
+    }
   });
 });
 
