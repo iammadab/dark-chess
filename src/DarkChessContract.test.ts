@@ -38,6 +38,8 @@ describe('DarkChessContract', () => {
 
     appInstance = new DarkChessContract(zkAppAddress);
 
+    await DarkChessContract.compile();
+
     await deploy(
       appInstance,
       zkAppPrivateKey,
@@ -101,8 +103,6 @@ describe('DarkChessContract', () => {
   });
 
   it('allows only player with current turn to make a move', async () => {
-    await DarkChessContract.compile();
-
     // Player 2 should not be able to make a move
     try {
       const playerTwoSig = Signature.create(playerTwoSK, []);
