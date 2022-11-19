@@ -7,23 +7,31 @@ import {
   Field,
   Poseidon,
   Bool,
+  Signature,
 } from 'snarkyjs';
 import { deploy, getOrientation } from './dark_chess_contract_lib';
 
 describe('DarkChessContract', () => {
   let appInstance: DarkChessContract;
+  let deployerAccount: PrivateKey;
+  let playerOneSK: PrivateKey;
+  let playerTwoSK: PrivateKey;
   let playerOnePK: PublicKey;
   let playerTwoPK: PublicKey;
 
   beforeEach(async () => {
     await isReady;
 
-    const Local = Mina.LocalBlockchain();
+    const Local = Mina.LocalBlockchain({
+      proofsEnabled: true,
+    });
     Mina.setActiveInstance(Local);
-    const deployerAccount = Local.testAccounts[0].privateKey;
+    deployerAccount = Local.testAccounts[0].privateKey;
 
-    playerOnePK = Local.testAccounts[1].privateKey.toPublicKey();
-    playerTwoPK = Local.testAccounts[2].privateKey.toPublicKey();
+    playerOneSK = Local.testAccounts[1].privateKey;
+    playerTwoSK = Local.testAccounts[2].privateKey;
+    playerOnePK = playerOneSK.toPublicKey();
+    playerTwoPK = playerTwoSK.toPublicKey();
 
     const zkAppPrivateKey = PrivateKey.random();
     const zkAppAddress = zkAppPrivateKey.toPublicKey();
@@ -90,6 +98,33 @@ describe('DarkChessContract', () => {
     } catch {
       // do nothing, we are good
     }
+  });
+
+  it('allows only player with current turn to make a move', async () => {
+    await DarkChessContract.compile();
+
+    // Player 2 should not be able to make a move
+    try {
+      const playerTwoSig = Signature.create(playerTwoSK, []);
+      // TODO: use tx here
+      appInstance.makeMove(playerTwoSig, playerTwoPK, playerOnePK);
+      expect(true).toBe(false);
+    } catch {
+      // do nothing, we are good
+    }
+
+    // Player 1 should be able to make a move
+    const playerOneSig = Signature.create(playerOneSK, []);
+    const txn1 = await Mina.transaction(deployerAccount, () => {
+      appInstance.makeMove(playerOneSig, playerOnePK, playerTwoPK);
+    });
+    await txn1.prove();
+    await txn1.send();
+
+    // player turn should change after a move
+    expect(appInstance.playerTurn.get().toString()).toBe(
+      new Field(0).toString()
+    );
   });
 });
 
