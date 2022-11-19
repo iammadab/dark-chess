@@ -3,7 +3,7 @@
     "target": "ES2019",
     "module": "es2022",
     "lib": ["dom", "esnext"],
-    "outDir": "./build",
+    "outDir": "zkapp/build",
     "rootDir": ".",
     "strict": true,
     "strictPropertyInitialization": false, // to enable generic constructors, e.g. on CircuitValue
@@ -20,6 +20,6 @@
     "allowSyntheticDefaultImports": true,
     "isolatedModules": true
   },
-  "include": ["./src"],
-  "exclude": ["./src/**/*.test.ts"]
+  "include": ["./zkapp/src"],
+  "exclude": ["./zkapp/src/**/*.test.ts"]
 }
