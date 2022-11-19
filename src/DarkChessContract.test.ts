@@ -1,12 +1,6 @@
 import { DarkChessContract } from './DarkChessContract';
-import {
-  Mina,
-  isReady,
-  PrivateKey,
-  AccountUpdate,
-  Poseidon,
-  Bool,
-} from 'snarkyjs';
+import { Mina, isReady, PrivateKey } from 'snarkyjs';
+import { deploy } from './dark_chess_contract_lib';
 
 describe('DarkChessContract', () => {
   let appInstance: DarkChessContract;
@@ -29,22 +23,13 @@ describe('DarkChessContract', () => {
 
     appInstance = new DarkChessContract(zkAppAddress);
 
-    const deployTxn = await Mina.transaction(deployerAccount, () => {
-      AccountUpdate.fundNewAccount(deployerAccount);
-      console.log('funded account');
-      appInstance.deploy({ zkappKey: zkAppPrivateKey });
-      console.log('about to deploy');
-      // appInstance.initState(playerOnePub, playerTwoPub);
-      // appInstance.requireSignature();
-      appInstance.playerOrientationHash.set(
-        Poseidon.hash(playerOnePub.toFields().concat(playerTwoPub.toFields()))
-      );
-
-      // TODO: Move this documentation to the state
-      // true means white to play, false means black
-      appInstance.playerTurn.set(Bool(true));
-    });
-    await deployTxn.send();
+    await deploy(
+      appInstance,
+      zkAppPrivateKey,
+      deployerAccount,
+      playerOnePub,
+      playerTwoPub
+    );
   });
 
   it('initializes state correctly', () => {
