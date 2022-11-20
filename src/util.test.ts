@@ -8,12 +8,12 @@ describe('util.js', () => {
 
   describe('exp()', () => {
     it('should return 1 when power is 0', () => {
-      expect(exp(Field.random(), Field.zero.toBigInt())).toEqual(Field.one);
+      expect(exp(Field.random(), Field(0).toBigInt())).toEqual(new Field(1));
     });
 
     it('should return the value when the power is 1', () => {
       const value = Field.random();
-      expect(exp(value, Field.one.toBigInt())).toEqual(value);
+      expect(exp(value, new Field(1).toBigInt())).toEqual(value);
     });
 
     it('should properly exponentiate values', () => {
