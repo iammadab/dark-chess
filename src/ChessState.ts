@@ -3,7 +3,7 @@ import { Bool, CircuitString, Field, isReady } from 'snarkyjs';
 await isReady;
 
 export const EMPTY_SQUARE = new Field(13);
-export const HIDDEN_SQUARE = CircuitString.fromString('hidden');
+export const HIDDEN_SQUARE = CircuitString.fromString('h');
 
 // Do I need a map for square to field??
 // also need a map from field to sqare
@@ -93,5 +93,43 @@ export default class ChessState {
     this.setPieceAt(CircuitString.fromString('f'), new Field(7), BLACK_PAWN);
     this.setPieceAt(CircuitString.fromString('g'), new Field(7), BLACK_PAWN);
     this.setPieceAt(CircuitString.fromString('h'), new Field(7), BLACK_PAWN);
+  }
+
+  generateFen() {
+    // TODO: explain how this does what it does
+    // go through all the squares and build some fen string
+    let fen_string = '';
+    let starting_point = 0;
+    let current_index = starting_point;
+    let empty_space_count = 0;
+    for (let i = 0; i < 64; i++) {
+      if (i != 0 && i % 8 == 0) {
+        if (empty_space_count != 0) {
+          fen_string += empty_space_count;
+          empty_space_count = 0;
+        }
+        fen_string += '/';
+      }
+      let piece = this.state[current_index].toString();
+      if (piece != 'h') {
+        if (empty_space_count != 0) {
+          fen_string += empty_space_count;
+          empty_space_count = 0;
+        }
+        fen_string += piece;
+      } else {
+        empty_space_count += 1;
+      }
+      current_index += 8;
+      if (current_index >= 64) {
+        starting_point += 1;
+        current_index = starting_point;
+      }
+
+      if (i == 63 && empty_space_count != 0) {
+        fen_string += empty_space_count;
+      }
+    }
+    return fen_string;
   }
 }

@@ -1,5 +1,5 @@
-import { Bool, CircuitString, Field, isReady } from 'snarkyjs';
-import ChessState, { HIDDEN_SQUARE } from './ChessState';
+import { Bool, isReady } from 'snarkyjs';
+import ChessState from './ChessState';
 
 describe('ChessState', () => {
   beforeEach(async () => {
@@ -7,17 +7,15 @@ describe('ChessState', () => {
   });
 
   it('should initialize the state correctly', () => {
-    const board = new ChessState(Bool(true));
-    const current_board_state = board.getState();
-    for (let square of current_board_state) {
-      expect(square).toEqual(HIDDEN_SQUARE);
-    }
+    // white pov
+    const white_board = new ChessState(Bool(true));
+    const white_pov_fen = white_board.generateFen();
+    expect(white_pov_fen).toBe('rnbqkbnr/pppppppp/8/8/8/8/8/8');
+    console.log(white_pov_fen);
 
-    board.setPieceAt(
-      CircuitString.fromString('a'),
-      new Field(2),
-      CircuitString.fromString('k')
-    );
-    expect(current_board_state[1].toString()).toEqual('k');
+    const black_board = new ChessState(Bool(false));
+    const black_pov_fen = black_board.generateFen();
+    expect(black_pov_fen).toBe('8/8/8/8/8/8/PPPPPPPP/RNBQKBNR');
+    console.log(black_pov_fen);
   });
 });
