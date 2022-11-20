@@ -23,7 +23,7 @@ describe('DarkChessContract', () => {
     await isReady;
 
     const Local = Mina.LocalBlockchain({
-      proofsEnabled: false,
+      proofsEnabled: true,
     });
     Mina.setActiveInstance(Local);
     deployerAccount = Local.testAccounts[0].privateKey;

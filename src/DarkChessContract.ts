@@ -11,7 +11,10 @@ import {
   PublicKey,
   Circuit,
   Poseidon,
+  CircuitString,
 } from 'snarkyjs';
+
+import ChessState from './ChessState';
 
 export class DarkChessContract extends SmartContract {
   @state(Field) playerOrientationHash = State<Field>();
@@ -30,6 +33,8 @@ export class DarkChessContract extends SmartContract {
     pubKey: PublicKey,
     otherPubKey: PublicKey
   ) {
+    const board = new ChessState(Bool(true));
+    board.notationToSquareIndex(CircuitString.fromString('a'), new Field(1));
     // Need the signature of the player making the move, their public key and that of the other player
     // TODO: Signature should technically contain the move
     //  but not doing that for now, just using this to test access control
