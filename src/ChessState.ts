@@ -2,30 +2,32 @@ import { Bool, CircuitString, Field, isReady } from 'snarkyjs';
 
 await isReady;
 
-export const PIECE_TO_FIELD_MAP = {
-  r: new Field(1),
-  n: new Field(2),
-  b: new Field(3),
-  q: new Field(4),
-  k: new Field(5),
-  p: new Field(6),
-  R: new Field(7),
-  N: new Field(8),
-  B: new Field(9),
-  Q: new Field(10),
-  K: new Field(11),
-  P: new Field(12),
-};
 export const EMPTY_SQUARE = new Field(13);
-export const HIDDEN_SQUARE = new Field(14);
+export const HIDDEN_SQUARE = CircuitString.fromString('hidden');
 
 // Do I need a map for square to field??
 // also need a map from field to sqare
 // maybe index instead??
 
+// TODO: implement castling
+
+const WHITE_ROOK = CircuitString.fromString('r');
+const WHITE_KNIGHT = CircuitString.fromString('n');
+const WHITE_BISHOP = CircuitString.fromString('b');
+const WHITE_QUEEN = CircuitString.fromString('q');
+const WHITE_KING = CircuitString.fromString('k');
+const WHITE_PAWN = CircuitString.fromString('p');
+
+const BLACK_ROOK = CircuitString.fromString('R');
+const BLACK_KNIGHT = CircuitString.fromString('N');
+const BLACK_BISHOP = CircuitString.fromString('B');
+const BLACK_QUEEN = CircuitString.fromString('Q');
+const BLACK_KING = CircuitString.fromString('K');
+const BLACK_PAWN = CircuitString.fromString('P');
+
 export default class ChessState {
   private orientation: Bool;
-  private state: Field[] = new Array(64).fill(HIDDEN_SQUARE);
+  private state: CircuitString[] = new Array(64).fill(HIDDEN_SQUARE);
 
   constructor(orientation: Bool) {
     // either white or black
@@ -36,7 +38,7 @@ export default class ChessState {
     }
   }
 
-  getState(): Field[] {
+  getState(): CircuitString[] {
     return this.state;
   }
 
@@ -50,13 +52,46 @@ export default class ChessState {
     return square_index;
   }
 
+  setPieceAt(file: CircuitString, rank: Field, piece: CircuitString) {
+    const piece_index = this.notationToSquareIndex(file, rank);
+    this.state[piece_index] = piece;
+  }
+
   initWhiteState() {
-    console.log(this.state);
-    // set(a1, white_rook)
-    // set(a, 1, white_rook)
+    this.setPieceAt(CircuitString.fromString('a'), new Field(1), WHITE_ROOK);
+    this.setPieceAt(CircuitString.fromString('b'), new Field(1), WHITE_KNIGHT);
+    this.setPieceAt(CircuitString.fromString('c'), new Field(1), WHITE_BISHOP);
+    this.setPieceAt(CircuitString.fromString('d'), new Field(1), WHITE_QUEEN);
+    this.setPieceAt(CircuitString.fromString('e'), new Field(1), WHITE_KING);
+    this.setPieceAt(CircuitString.fromString('f'), new Field(1), WHITE_BISHOP);
+    this.setPieceAt(CircuitString.fromString('g'), new Field(1), WHITE_KNIGHT);
+    this.setPieceAt(CircuitString.fromString('h'), new Field(1), WHITE_ROOK);
+    this.setPieceAt(CircuitString.fromString('a'), new Field(2), WHITE_PAWN);
+    this.setPieceAt(CircuitString.fromString('b'), new Field(2), WHITE_PAWN);
+    this.setPieceAt(CircuitString.fromString('c'), new Field(2), WHITE_PAWN);
+    this.setPieceAt(CircuitString.fromString('d'), new Field(2), WHITE_PAWN);
+    this.setPieceAt(CircuitString.fromString('e'), new Field(2), WHITE_PAWN);
+    this.setPieceAt(CircuitString.fromString('f'), new Field(2), WHITE_PAWN);
+    this.setPieceAt(CircuitString.fromString('g'), new Field(2), WHITE_PAWN);
+    this.setPieceAt(CircuitString.fromString('h'), new Field(2), WHITE_PAWN);
   }
 
   initBlackState() {
-    console.log(this.state);
+    this.setPieceAt(CircuitString.fromString('a'), new Field(8), BLACK_ROOK);
+    this.setPieceAt(CircuitString.fromString('b'), new Field(8), BLACK_KNIGHT);
+    this.setPieceAt(CircuitString.fromString('c'), new Field(8), BLACK_BISHOP);
+    this.setPieceAt(CircuitString.fromString('d'), new Field(8), BLACK_QUEEN);
+    this.setPieceAt(CircuitString.fromString('e'), new Field(8), BLACK_KING);
+    this.setPieceAt(CircuitString.fromString('f'), new Field(8), BLACK_BISHOP);
+    this.setPieceAt(CircuitString.fromString('g'), new Field(8), BLACK_KNIGHT);
+    this.setPieceAt(CircuitString.fromString('h'), new Field(8), BLACK_ROOK);
+    this.setPieceAt(CircuitString.fromString('a'), new Field(7), BLACK_PAWN);
+    this.setPieceAt(CircuitString.fromString('b'), new Field(7), BLACK_PAWN);
+    this.setPieceAt(CircuitString.fromString('c'), new Field(7), BLACK_PAWN);
+    this.setPieceAt(CircuitString.fromString('d'), new Field(7), BLACK_PAWN);
+    this.setPieceAt(CircuitString.fromString('e'), new Field(7), BLACK_PAWN);
+    this.setPieceAt(CircuitString.fromString('f'), new Field(7), BLACK_PAWN);
+    this.setPieceAt(CircuitString.fromString('g'), new Field(7), BLACK_PAWN);
+    this.setPieceAt(CircuitString.fromString('h'), new Field(7), BLACK_PAWN);
   }
 }

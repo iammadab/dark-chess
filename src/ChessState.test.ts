@@ -13,8 +13,11 @@ describe('ChessState', () => {
       expect(square).toEqual(HIDDEN_SQUARE);
     }
 
-    console.log(
-      board.notationToSquareIndex(CircuitString.fromString('a'), new Field(2))
+    board.setPieceAt(
+      CircuitString.fromString('a'),
+      new Field(2),
+      CircuitString.fromString('k')
     );
+    expect(current_board_state[1].toString()).toEqual('k');
   });
 });
