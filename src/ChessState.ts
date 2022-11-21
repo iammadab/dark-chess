@@ -2,7 +2,7 @@ import { Bool, CircuitString, Field, isReady } from 'snarkyjs';
 
 await isReady;
 
-export const EMPTY_SQUARE = new Field(13);
+export const EMPTY_SQUARE = CircuitString.fromString('e');
 export const HIDDEN_SQUARE = CircuitString.fromString('h');
 
 // Do I need a map for square to field??
@@ -25,14 +25,14 @@ const BLACK_QUEEN = CircuitString.fromString('Q');
 const BLACK_KING = CircuitString.fromString('K');
 const BLACK_PAWN = CircuitString.fromString('P');
 
-export const UP = 1;
-export const DOWN = -1;
-export const LEFT = -8;
-export const RIGHT = 8;
-export const UP_LEFT = UP + LEFT;
-export const UP_RIGHT = UP + RIGHT;
-export const DOWN_LEFT = DOWN + LEFT;
-export const DOWN_RIGHT = DOWN + RIGHT;
+export const UP = new Field(1);
+export const DOWN = new Field(-1);
+export const LEFT = new Field(-8);
+export const RIGHT = new Field(8);
+export const UP_LEFT = new Field(UP).add(new Field(LEFT));
+export const UP_RIGHT = new Field(UP).add(new Field(RIGHT));
+export const DOWN_LEFT = new Field(DOWN).add(new Field(LEFT));
+export const DOWN_RIGHT = new Field(DOWN).add(new Field(RIGHT));
 
 export default class ChessState {
   private orientation: Bool;
@@ -40,7 +40,8 @@ export default class ChessState {
 
   constructor(orientation: Bool) {
     // either white or black
-    if (orientation.toBoolean() == true) {
+    this.orientation = orientation;
+    if (this.orientation.toBoolean() == true) {
       this.initWhiteState();
     } else {
       this.initBlackState();
@@ -153,15 +154,72 @@ export default class ChessState {
       return current_index.add(move_translation);
     }
   }
+
+  // goal: build a tree for all squares we have pieces on
+  // for each piece, we want to decompose the piece's movement
+
+  buildTreeFor(index: Field, piece: CircuitString): Tree {
+    const tree = new Tree(index);
+    // grab the piece at the index. we should know this already tho
+    // depending on what the piece is, we move differently
+    if (piece.equals(CircuitString.fromString('r')).toBoolean()) {
+      // rook
+      this.applyDirection(UP, tree);
+    }
+
+    return tree;
+  }
+
+  applyDirection(direction: Field, tree: Tree) {
+    // add the direction to the index to get the new index
+    // perform checks on the index square
+    // - not out of bouds
+    // - your piece is not on that square
+    // if all works out, then create a new tree with the index and recurse
+    // if it fails, then stop
+    let new_index = tree.index.add(direction);
+    if (this.isValidSquare(new_index).toBoolean()) {
+      const new_tree_node = new Tree(new_index);
+      tree.addTree(new_tree_node);
+      this.applyDirection(direction, new_tree_node);
+    }
+  }
+
+  isValidSquare(index: Field): Bool {
+    // grab the content of the square at this index
+    // let m = index.lt(0).toBoolean();
+    // let n = index.gt(63).toBoolean();
+    if (+index.toString() < 0 || +index.toString() > 63) {
+      return new Bool(false);
+    }
+    let square_content = this.state[+index.toString()];
+    // how to know if the square contains your piece
+    let square_content_as_string = square_content.toString();
+    if (square_content_as_string != 'e' && square_content_as_string != 'h') {
+      // a piece square, is it a black or white piece
+      // this checks if it was already lower case (white in that case)
+      let color =
+        square_content_as_string.toLowerCase() == square_content_as_string;
+      console.log('got here');
+      if (color == this.orientation.toBoolean()) {
+        return new Bool(false);
+      }
+    }
+
+    return new Bool(true);
+  }
+
+  getTreeIndexValues(tree: Tree, result: Field[]): Field[] {
+    result.push(tree.index);
+    for (let node of tree.others) {
+      result = this.getTreeIndexValues(node, result);
+    }
+    return result;
+  }
 }
 
 export class Tree {
   index: Field;
-  // should the tree really have the index when the map
-  // already has that??
-  // how do we determine if a move is valid??
-  // if the index is in the tree
-  // an array of tree might just work then
   others: Tree[];
 
   constructor(index: Field) {
@@ -175,14 +233,14 @@ export class Tree {
   }
 
   // TODO: can this be a number
-  getSquaresAt(depth: number, result: Field[]): Field[] {
-    if (depth == 0) {
+  getSquaresAt(depth: Field, result: Field[]): Field[] {
+    if (depth.equals(0).toBoolean()) {
       result.push(this.index);
       return result;
     }
 
     for (let tree of this.others) {
-      result = tree.getSquaresAt(depth - 1, result);
+      result = tree.getSquaresAt(depth.sub(new Field(1)), result);
     }
 
     return result;
