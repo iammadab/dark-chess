@@ -76,7 +76,7 @@ export default class ChessState {
     this.setPieceAt(CircuitString.fromString('f'), new Field(1), WHITE_BISHOP);
     this.setPieceAt(CircuitString.fromString('g'), new Field(1), WHITE_KNIGHT);
     this.setPieceAt(CircuitString.fromString('h'), new Field(1), WHITE_ROOK);
-    this.setPieceAt(CircuitString.fromString('a'), new Field(2), WHITE_PAWN);
+    // this.setPieceAt(CircuitString.fromString('a'), new Field(2), WHITE_PAWN);
     this.setPieceAt(CircuitString.fromString('b'), new Field(2), WHITE_PAWN);
     this.setPieceAt(CircuitString.fromString('c'), new Field(2), WHITE_PAWN);
     this.setPieceAt(CircuitString.fromString('d'), new Field(2), WHITE_PAWN);
@@ -164,24 +164,28 @@ export default class ChessState {
     // depending on what the piece is, we move differently
     if (piece.equals(CircuitString.fromString('r')).toBoolean()) {
       // rook
-      this.applyDirection(UP, tree);
+      this.applyDirection(UP, tree, new Field(3));
     }
 
     return tree;
   }
 
-  applyDirection(direction: Field, tree: Tree) {
+  applyDirection(direction: Field, tree: Tree, depth: Field) {
     // add the direction to the index to get the new index
     // perform checks on the index square
     // - not out of bouds
     // - your piece is not on that square
     // if all works out, then create a new tree with the index and recurse
     // if it fails, then stop
+    if (depth.equals(new Field(0)).toBoolean()) {
+      return;
+    }
+
     let new_index = tree.index.add(direction);
     if (this.isValidSquare(new_index).toBoolean()) {
       const new_tree_node = new Tree(new_index);
       tree.addTree(new_tree_node);
-      this.applyDirection(direction, new_tree_node);
+      this.applyDirection(direction, new_tree_node, depth.sub(new Field(1)));
     }
   }
 
