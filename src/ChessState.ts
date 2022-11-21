@@ -25,6 +25,15 @@ const BLACK_QUEEN = CircuitString.fromString('Q');
 const BLACK_KING = CircuitString.fromString('K');
 const BLACK_PAWN = CircuitString.fromString('P');
 
+export const UP = 1;
+export const DOWN = -1;
+export const LEFT = -8;
+export const RIGHT = 8;
+export const UP_LEFT = UP + LEFT;
+export const UP_RIGHT = UP + RIGHT;
+export const DOWN_LEFT = DOWN + LEFT;
+export const DOWN_RIGHT = DOWN + RIGHT;
+
 export default class ChessState {
   private orientation: Bool;
   private state: CircuitString[] = new Array(64).fill(HIDDEN_SQUARE);
@@ -131,5 +140,51 @@ export default class ChessState {
       }
     }
     return fen_string;
+  }
+
+  indexAfterMove(
+    current_index: Field,
+    move_translation: Field,
+    isBlack: Bool
+  ): Field {
+    if (isBlack.toBoolean() == true) {
+      return current_index.sub(move_translation);
+    } else {
+      return current_index.add(move_translation);
+    }
+  }
+}
+
+export class Tree {
+  index: Field;
+  // should the tree really have the index when the map
+  // already has that??
+  // how do we determine if a move is valid??
+  // if the index is in the tree
+  // an array of tree might just work then
+  others: Tree[];
+
+  constructor(index: Field) {
+    this.index = index;
+    this.others = [];
+  }
+
+  addTree(tree: Tree): Tree {
+    this.others.push(tree);
+    return tree;
+  }
+
+  // TODO: can this be a number
+  getSquaresAt(depth: number, result: Field[]): Field[] {
+    if (depth == 0) {
+      result.push(this.index);
+      return result;
+    }
+
+    for (let tree of this.others) {
+      result = tree.getSquaresAt(depth - 1, result);
+    }
+
+    return result;
   }
 }
